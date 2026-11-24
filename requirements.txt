@@ -1,9 +1,15 @@
-fastapi>=0.110
-uvicorn[standard]>=0.29
-python-multipart>=0.0.9
-pillow>=10.0
-numpy>=1.26
-pandas>=2.0
-torch>=2.2
-torchvision>=0.17
-boto3>=1.34
+fastapi==0.165.0
+uvicorn[standard]==0.54.0
+python-multipart==0.0.34
+pillow==11.1.0
+numpy==2.2.6
+pandas==2.3.3
+torch==2.9.0
+torchvision==0.24.0
+boto3==1.44.10
+
+# desarrollo y CI
+pytest==9.2.0
+pytest-cov==7.1.0
+httpx==0.28.1
+ruff==0.17.6
