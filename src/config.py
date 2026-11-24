@@ -18,9 +18,7 @@ def load_classes(mapping_file=None):
     if not f.exists():
         return list(DEFAULT_CLASSES)
     mapping = json.loads(f.read_text())
-    if all(isinstance(v, int) for v in mapping.values()):  # {"healthy": 0, ...}
-        return [k for k, _ in sorted(mapping.items(), key=lambda kv: kv[1])]
-    return [v for _, v in sorted(mapping.items(), key=lambda kv: int(kv[0]))]  # {"0": "healthy"}
+    return list(mapping["classes"])
 
 
 CLASSES = load_classes()
@@ -29,10 +27,9 @@ CLASSES = load_classes()
 IMG_SIZE = 224  # tamano de entrada de la red
 SOURCE_SIZE = 256  # tamano de las imagenes de PlantVillage
 PATCH = 96  # lado del recorte
-EVAL_K = 8  # recortes que se promedian por imagen
-STRIDE = 16  # paso al buscar recortes
-MAX_BLACK = 0.005  # fraccion maxima de pixeles negros por recorte
-BLACK_THR = 10  # un pixel con max(R,G,B) menor a esto cuenta como negro
+EVAL_K = 16  # recortes que se promedian por foto
+STRIDE = 16  # paso de los recortes del indice de parches (entrenamiento)
+PHOTO_STRIDE = 48  # paso de la malla de recortes en fotos nuevas
 MEAN = (0.485, 0.456, 0.406)
 STD = (0.229, 0.224, 0.225)
 

@@ -1,6 +1,7 @@
-"""Preprocesamiento de una foto: recortes de 96 px sin fondo negro -> tensor normalizado.
+"""Preprocesamiento de una foto: recortes de 96 px -> tensor normalizado.
 
-Debe ser igual al de evaluacion del entrenamiento (PatchDataset con train=False).
+Es el mismo procedimiento que se uso para evaluar las fotos externas en el notebook
+(ext_patches): lado corto a 256 px, malla de recortes y promedio de las predicciones.
 """
 
 import io
@@ -35,33 +36,21 @@ def load_image(source):
     return img.convert("RGB")
 
 
-def _dilate(mask):
-    """Agranda la mascara 1 px en las 4 direcciones."""
-    out = mask.copy()
-    out[1:] |= mask[:-1]
-    out[:-1] |= mask[1:]
-    out[:, 1:] |= mask[:, :-1]
-    out[:, :-1] |= mask[:, 1:]
-    return out
+def extract_patches(img, k=config.EVAL_K, stride=config.PHOTO_STRIDE):
+    """Reescala (lado corto = 256) y toma hasta k recortes repartidos en una malla."""
+    patch = config.PATCH
+    img = img.convert("RGB")
+    w, h = img.size
+    s = config.SOURCE_SIZE / min(w, h)
+    new_size = (max(patch, round(w * s)), max(patch, round(h * s)))
+    img = img.resize(new_size, Image.Resampling.LANCZOS)
 
-
-def extract_patches(img, k=config.EVAL_K):
-    """Toma hasta k recortes fijos (repartidos) que casi no tengan pixeles negros."""
-    size, patch = config.SOURCE_SIZE, config.PATCH
-    img = img.convert("RGB").resize((size, size))
-    black = _dilate(np.asarray(img).max(axis=2) < config.BLACK_THR)
-
-    cands = []
-    for y in range(0, size - patch + 1, config.STRIDE):
-        for x in range(0, size - patch + 1, config.STRIDE):
-            cands.append((black[y : y + patch, x : x + patch].mean(), y, x))
-
-    valid = [c for c in cands if c[0] <= config.MAX_BLACK]
-    if not valid:  # foto sin zona limpia: usa las menos oscuras
-        valid = sorted(cands)[:k]
-
-    idx = np.linspace(0, len(valid) - 1, num=min(k, len(valid))).round().astype(int)
-    return [img.crop((x, y, x + patch, y + patch)) for _, y, x in (valid[i] for i in idx)]
+    W, H = img.size
+    boxes = [
+        (y, x) for y in range(0, H - patch + 1, stride) for x in range(0, W - patch + 1, stride)
+    ]
+    idx = np.unique(np.linspace(0, len(boxes) - 1, k).round().astype(int))
+    return [img.crop((x, y, x + patch, y + patch)) for y, x in (boxes[i] for i in idx)]
 
 
 def preprocess_image(img, k=config.EVAL_K):

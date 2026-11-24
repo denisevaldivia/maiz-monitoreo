@@ -26,19 +26,16 @@ def test_normalization_matches_imagenet_stats():
     assert got == pytest.approx(expected, abs=1e-3)
 
 
-def test_patches_avoid_black_background():
-    arr = np.full((256, 256, 3), (60, 160, 60), dtype=np.uint8)
-    arr[:, :128] = 0  # mitad izquierda negra
-    patches = extract_patches(Image.fromarray(arr))
-    assert patches
-    for p in patches:
-        assert np.asarray(p).max(axis=2).min() >= config.BLACK_THR
-
-
-def test_all_black_image_still_returns_patches():
-    patches = extract_patches(Image.new("RGB", (256, 256), (0, 0, 0)))
+def test_patches_have_expected_size_and_count():
+    patches = extract_patches(Image.new("RGB", (256, 256), (60, 160, 60)))
     assert len(patches) == config.EVAL_K
-    assert patches[0].size == (config.PATCH, config.PATCH)
+    assert all(p.size == (config.PATCH, config.PATCH) for p in patches)
+
+
+def test_small_and_non_square_images_still_give_patches():
+    for size in [(64, 64), (300, 200), (200, 900)]:
+        patches = extract_patches(Image.new("RGB", size, (60, 160, 60)))
+        assert 1 <= len(patches) <= config.EVAL_K
 
 
 def test_load_image_accepts_valid_bytes(good_image_bytes):

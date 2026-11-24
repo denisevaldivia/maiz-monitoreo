@@ -15,7 +15,7 @@ preentrenada en ImageNet y ajustada (fine-tuning). El modelo final se sirve con 
 │   ├── config.py            # constantes: clases, tamanos, umbrales
 │   ├── data/
 │   │   ├── validation.py    # validacion de imagenes, etiquetas y fuga entre conjuntos
-│   │   └── preprocessing.py # foto -> recortes de 96 px -> tensor normalizado
+│   │   └── preprocessing.py # foto -> 16 recortes de 96 px -> tensor normalizado
 │   ├── models/
 │   │   ├── loader.py        # arquitectura y carga de pesos (local o S3)
 │   │   └── predictor.py     # prediccion promediando recortes
@@ -86,6 +86,9 @@ uvicorn src.api.main:app --host 0.0.0.0 --port 8000
 - Si `confidence < 0.70` (`LOW_CONFIDENCE`), `needs_review` es `true` y se agrega un mensaje.
 - Archivo que no es imagen valida: `400` con el motivo. Sin modelo cargado: `503`.
 - Mas de 10 MB: `413`.
+- La imagen se procesa con el mismo método que se usó para medir el modelo en fotos externas
+  (16 recortes de 96 px, promedio de probabilidades), para que el servicio se comporte como
+  en la evaluación.
 
 Variables de entorno: `MODELS_DIR`, `MODEL_FILE`, `MODEL_S3_URI`, `LOW_CONFIDENCE`,
 `PREDICTION_LOG`.
@@ -118,6 +121,9 @@ entrenamiento. `upload_log_to_s3()` sube el log a S3.
 | EfficientNet-B0 v2 (160 px) | 0.937 | 0.922 |
 | EfficientNet-B0 v3 (final) | 0.962 | 0.949 |
 
+- En PlantVillage, EfficientNet-B0 v3 y la CNN simple de color rinden prácticamente igual
+  (F1 0.949 y 0.951); la diferencia es menor que el ruido de un conjunto de test de este
+  tamaño. El error principal es confundir `gray_leaf_spot` con `northern_blight`.
 - PlantVillage tiene fondos controlados (casi toda la roya tiene fondo negro). El rendimiento
   en test esta inflado respecto a fotos reales: en 20 fotos externas se obtuvo entre 75% y 90%
   segun el modelo.

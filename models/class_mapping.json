@@ -1,0 +1,15 @@
+{
+  "original_to_clean": {
+    "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot": "gray_leaf_spot",
+    "Corn_(maize)___Common_rust_": "common_rust",
+    "Corn_(maize)___Northern_Leaf_Blight": "northern_blight",
+    "Corn_(maize)___healthy": "healthy"
+  },
+  "classes": [
+    "common_rust",
+    "gray_leaf_spot",
+    "healthy",
+    "northern_blight"
+  ],
+  "source": "https://github.com/spMohanty/PlantVillage-Dataset/tree/master/raw/color"
+}
