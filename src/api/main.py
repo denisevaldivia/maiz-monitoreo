@@ -6,6 +6,7 @@ Correr:  uvicorn src.api.main:app --host 0.0.0.0 --port 8000
 import logging
 import time
 from contextlib import asynccontextmanager
+from typing import Annotated
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 
@@ -36,7 +37,7 @@ def health():
 
 
 @app.post("/predict")
-async def predict(file: UploadFile = File(...)):
+async def predict(file: Annotated[UploadFile, File()]):
     if app.state.predictor is None:
         raise HTTPException(status_code=503, detail="El modelo aun no esta cargado.")
 
