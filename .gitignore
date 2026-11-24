@@ -1,17 +1,26 @@
-# Datos y modelos pesados (viven en S3)
-data/raw/*
-data/processed/*
+# Datos y modelos pesados (viven en S3, no en git)
+data/*
+!data/.gitkeep
+!data/split_v1.csv
+!data/patch_index_v1.csv
 models/*
-!data/raw/.gitkeep
-!data/processed/.gitkeep
 !models/.gitkeep
+!models/class_mapping.json
+*.pt
+*.zip
+logs/
 
 # Python
 __pycache__/
 *.pyc
 .venv/
-.ipynb_checkpoints/
 .pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Notebooks
+.ipynb_checkpoints/
 
 # Secretos
 .env
